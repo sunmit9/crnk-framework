@@ -1,5 +1,7 @@
 package io.crnk.core.engine.information.resource;
 
+import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
+import com.fasterxml.jackson.databind.ser.PropertyWriter;
 import io.crnk.core.resource.annotations.LookupIncludeBehavior;
 import io.crnk.core.resource.annotations.SerializeType;
 
@@ -66,4 +68,6 @@ public interface ResourceField {
 	 * @return access information for this resource (postable, patchable)
 	 */
 	ResourceFieldAccess getAccess();
+
+	PropertyWriter getPropertyWriter();
 }

@@ -73,7 +73,7 @@ public class ModuleRegistry {
 	private ResourceInformationProvider resourceInformationProvider;
 
 	public DefaultInformationBuilder getInformationBuilder() {
-		return new DefaultInformationBuilder(typeParser);
+		return new DefaultInformationBuilder(typeParser, objectMapper);
 	}
 
 	public List<ResourceModificationFilter> getResourceModificationFilters() {
@@ -161,7 +161,7 @@ public class ModuleRegistry {
 		if (resourceInformationProvider == null) {
 			resourceInformationProvider =
 					new CombinedResourceInformationProvider(aggregatedModule.getResourceInformationProviders());
-			InformationBuilder informationBuilder = new DefaultInformationBuilder(typeParser);
+			InformationBuilder informationBuilder = new DefaultInformationBuilder(typeParser, objectMapper);
 			DefaultResourceInformationProviderContext context =
 					new DefaultResourceInformationProviderContext(resourceInformationProvider, informationBuilder, typeParser,
 							objectMapper);
@@ -282,7 +282,8 @@ public class ModuleRegistry {
 			Optional<? extends Module> optModule = getModule(extension.getTargetModule());
 			if (optModule.isPresent()) {
 				reverseExtensionMap.add(optModule.get(), extension);
-			} else if (!extension.isOptional()) {
+			}
+			else if (!extension.isOptional()) {
 				throw new IllegalStateException(extension.getTargetModule() + " not installed but required by " + extension);
 			}
 		}
@@ -323,7 +324,7 @@ public class ModuleRegistry {
 		return httpRequestContextProvider;
 	}
 
-	@SuppressWarnings({"rawtypes", "unchecked"})
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void applyRepositoryRegistrations(ResourceRegistry resourceRegistry) {
 		List<Object> repositories = aggregatedModule.getRepositories();
 
@@ -338,7 +339,7 @@ public class ModuleRegistry {
 	}
 
 	private void applyRepositoryRegistration(String resourceType,
-											 MultivaluedMap<String, RepositoryInformation> typeInfoMapping, Map<Object, Object> infoRepositoryMapping) {
+			MultivaluedMap<String, RepositoryInformation> typeInfoMapping, Map<Object, Object> infoRepositoryMapping) {
 
 		ResourceInformation resourceInformation = null;
 
@@ -353,7 +354,8 @@ public class ModuleRegistry {
 				resourceRepositoryInformation = (ResourceRepositoryInformation) repositoryInformation;
 				Object repository = infoRepositoryMapping.get(resourceRepositoryInformation);
 				resourceEntry = setupResourceRepository(repository);
-			} else {
+			}
+			else {
 				RelationshipRepositoryInformation relationshipRepositoryInformation =
 						(RelationshipRepositoryInformation) repositoryInformation;
 				Object repository = infoRepositoryMapping.get(repositoryInformation);
@@ -394,7 +396,7 @@ public class ModuleRegistry {
 				List<ResourceField> contributedFields = contributor.getResourceFields(new ResourceFieldContributorContext() {
 					@Override
 					public InformationBuilder getInformationBuilder() {
-						return new DefaultInformationBuilder(typeParser);
+						return new DefaultInformationBuilder(typeParser, objectMapper);
 					}
 				});
 				List<ResourceField> fields = new ArrayList<>();
@@ -407,8 +409,8 @@ public class ModuleRegistry {
 	}
 
 	private void mapRepositoryRegistrations(List<Object> repositories,
-											MultivaluedMap<String, RepositoryInformation> resourceTypeMap,
-											Map<Object, Object> resourceInformationMap) {
+			MultivaluedMap<String, RepositoryInformation> resourceTypeMap,
+			Map<Object, Object> resourceInformationMap) {
 
 		RepositoryInformationProvider repositoryInformationProvider = getRepositoryInformationBuilder();
 		RepositoryInformationProviderContext builderContext = new DefaultRepositoryInformationProviderContext(this);
@@ -421,7 +423,8 @@ public class ModuleRegistry {
 					ResourceRepositoryInformation info = (ResourceRepositoryInformation) repositoryInformation;
 					resourceInformationMap.put(info, repository);
 					resourceTypeMap.add(info.getResourceType(), repositoryInformation);
-				} else {
+				}
+				else {
 					RelationshipRepositoryInformation info = (RelationshipRepositoryInformation) repositoryInformation;
 					resourceInformationMap.put(info, repository);
 					resourceTypeMap.add(info.getSourceResourceType(), repositoryInformation);
@@ -431,7 +434,7 @@ public class ModuleRegistry {
 
 	}
 
-	@SuppressWarnings({"rawtypes", "unchecked"})
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private ResourceEntry setupResourceRepository(Object repository) {
 		final Object decoratedRepository = decorateRepository(repository);
 		RepositoryInstanceBuilder repositoryInstanceBuilder = new RepositoryInstanceBuilder(null, repository.getClass()) {
@@ -444,12 +447,13 @@ public class ModuleRegistry {
 
 		if (ClassUtils.getAnnotation(decoratedRepository.getClass(), JsonApiResourceRepository.class).isPresent()) {
 			return new AnnotatedResourceEntry(repositoryInstanceBuilder);
-		} else {
+		}
+		else {
 			return new DirectResponseResourceEntry(repositoryInstanceBuilder);
 		}
 	}
 
-	@SuppressWarnings({"rawtypes", "unchecked"})
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Object decorateRepository(Object repository) {
 		Object decoratedRepository = repository;
 		List<RepositoryDecoratorFactory> repositoryDecorators = getRepositoryDecoratorFactories();
@@ -457,7 +461,8 @@ public class ModuleRegistry {
 			Decorator decorator = null;
 			if (decoratedRepository instanceof RelationshipRepositoryV2) {
 				decorator = repositoryDecorator.decorateRepository((RelationshipRepositoryV2) decoratedRepository);
-			} else if (decoratedRepository instanceof ResourceRepositoryV2) {
+			}
+			else if (decoratedRepository instanceof ResourceRepositoryV2) {
 				decorator = repositoryDecorator.decorateRepository((ResourceRepositoryV2) decoratedRepository);
 			}
 			if (decorator != null) {
@@ -471,9 +476,9 @@ public class ModuleRegistry {
 		return decoratedRepository;
 	}
 
-	@SuppressWarnings({"rawtypes", "unchecked"})
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void setupRelationship(List<ResponseRelationshipEntry> relationshipEntries,
-								   final RelationshipRepositoryInformation relationshipRepositoryInformation, final Object relRepository) {
+			final RelationshipRepositoryInformation relationshipRepositoryInformation, final Object relRepository) {
 
 		final Object decoratedRepository = decorateRepository(relRepository);
 		RepositoryInstanceBuilder<Object> relationshipInstanceBuilder =
@@ -488,7 +493,8 @@ public class ModuleRegistry {
 		final String targetResourceType = relationshipRepositoryInformation.getTargetResourceType();
 		if (ClassUtils.getAnnotation(relRepository.getClass(), JsonApiRelationshipRepository.class).isPresent()) {
 			relationshipEntries.add(new AnnotatedRelationshipEntryBuilder(this, relationshipInstanceBuilder));
-		} else {
+		}
+		else {
 			ResponseRelationshipEntry relationshipEntry = new DirectResponseRelationshipEntry(relationshipInstanceBuilder) {
 
 				@Override

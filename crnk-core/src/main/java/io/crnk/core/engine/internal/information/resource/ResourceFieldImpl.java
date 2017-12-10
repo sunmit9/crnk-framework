@@ -1,5 +1,7 @@
 package io.crnk.core.engine.internal.information.resource;
 
+import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
+import com.fasterxml.jackson.databind.ser.PropertyWriter;
 import io.crnk.core.engine.document.Resource;
 import io.crnk.core.engine.information.resource.ResourceField;
 import io.crnk.core.engine.information.resource.ResourceFieldAccess;
@@ -34,6 +36,8 @@ public class ResourceFieldImpl implements ResourceField {
 
 	private final String oppositeName;
 
+	private final PropertyWriter propertyWriter;
+
 	private ResourceInformation parentResourceInformation;
 
 	private ResourceFieldAccessor accessor;
@@ -41,16 +45,16 @@ public class ResourceFieldImpl implements ResourceField {
 	private final ResourceFieldAccess access;
 
 	public ResourceFieldImpl(String jsonName, String underlyingName, ResourceFieldType resourceFieldType, Class<?> type,
-							 Type genericType, String oppositeResourceType) {
+			Type genericType, String oppositeResourceType) {
 		this(jsonName, underlyingName, resourceFieldType, type, genericType,
 				oppositeResourceType, null, SerializeType.LAZY, LookupIncludeBehavior.NONE,
-				new ResourceFieldAccess(true, true, true, true, true));
+				new ResourceFieldAccess(true, true, true, true, true), null);
 	}
 
 	public ResourceFieldImpl(String jsonName, String underlyingName, ResourceFieldType resourceFieldType, Class<?> type,
-							 Type genericType, String oppositeResourceType, String oppositeName, SerializeType serializeType,
-							 LookupIncludeBehavior lookupIncludeBehavior,
-							 ResourceFieldAccess access) {
+			Type genericType, String oppositeResourceType, String oppositeName, SerializeType serializeType,
+			LookupIncludeBehavior lookupIncludeBehavior,
+			ResourceFieldAccess access, PropertyWriter propertyWriter) {
 		this.jsonName = jsonName;
 		this.underlyingName = underlyingName;
 		this.resourceFieldType = resourceFieldType;
@@ -61,6 +65,7 @@ public class ResourceFieldImpl implements ResourceField {
 		this.oppositeName = oppositeName;
 		this.oppositeResourceType = oppositeResourceType;
 		this.access = access;
+		this.propertyWriter = propertyWriter;
 	}
 
 	public ResourceFieldType getResourceFieldType() {
@@ -158,7 +163,8 @@ public class ResourceFieldImpl implements ResourceField {
 	public void setResourceInformation(ResourceInformation resourceInformation) {
 		if (this.accessor == null && resourceInformation.getResourceClass() == Resource.class) {
 			this.accessor = new RawResourceFieldAccessor(underlyingName, resourceFieldType, type);
-		} else if (this.accessor == null) {
+		}
+		else if (this.accessor == null) {
 			this.accessor = new ReflectionFieldAccessor(resourceInformation.getResourceClass(), underlyingName, type);
 		}
 		this.parentResourceInformation = resourceInformation;
@@ -183,5 +189,10 @@ public class ResourceFieldImpl implements ResourceField {
 	@Override
 	public ResourceFieldAccess getAccess() {
 		return access;
+	}
+
+	@Override
+	public PropertyWriter getPropertyWriter() {
+		return propertyWriter;
 	}
 }

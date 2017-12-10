@@ -41,6 +41,11 @@ public interface InformationBuilder {
 
 		Resource superResourceType(String superResourceType);
 
+		/**
+		 * if enabled Jackson annotations will be processed. Resource must be backed by a traditional Java bean.
+		 */
+		void processJsonAnnotations(boolean processJsonAnnotations);
+
 		ResourceInformation build();
 
 	}

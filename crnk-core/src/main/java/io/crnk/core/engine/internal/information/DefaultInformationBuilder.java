@@ -1,15 +1,23 @@
 package io.crnk.core.engine.internal.information;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
+import com.fasterxml.jackson.databind.ser.BeanSerializer;
+import com.fasterxml.jackson.databind.ser.PropertyWriter;
 import io.crnk.core.engine.information.InformationBuilder;
 import io.crnk.core.engine.information.repository.RelationshipRepositoryInformation;
 import io.crnk.core.engine.information.repository.RepositoryAction;
 import io.crnk.core.engine.information.repository.RepositoryMethodAccess;
 import io.crnk.core.engine.information.repository.ResourceRepositoryInformation;
 import io.crnk.core.engine.information.resource.*;
+import io.crnk.core.engine.internal.document.mapper.ResourceMapper;
 import io.crnk.core.engine.internal.information.repository.RelationshipRepositoryInformationImpl;
 import io.crnk.core.engine.internal.information.repository.ResourceRepositoryInformationImpl;
 import io.crnk.core.engine.internal.information.resource.ResourceFieldImpl;
 import io.crnk.core.engine.internal.utils.ClassUtils;
+import io.crnk.core.engine.internal.utils.PreconditionUtil;
 import io.crnk.core.engine.parser.TypeParser;
 import io.crnk.core.resource.annotations.JsonApiResource;
 import io.crnk.core.resource.annotations.LookupIncludeBehavior;
@@ -18,12 +26,15 @@ import io.crnk.core.resource.annotations.SerializeType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 public class DefaultInformationBuilder implements InformationBuilder {
 
 	private final TypeParser typeParser;
+
+	private final ObjectMapper objectMapper;
 
 	public RelationshipRepository createRelationshipRepository(String targetResourceType) {
 		return createRelationshipRepository(null, targetResourceType);
@@ -107,6 +118,8 @@ public class DefaultInformationBuilder implements InformationBuilder {
 
 		private String superResourceType;
 
+		private boolean processJsonAnnotations;
+
 		@Override
 		public DefaultField addField(String name, ResourceFieldType type, Class<?> clazz) {
 			DefaultField field = new DefaultField();
@@ -135,14 +148,50 @@ public class DefaultInformationBuilder implements InformationBuilder {
 		}
 
 		public ResourceInformation build() {
-
 			List<ResourceField> fieldImpls = new ArrayList<>();
+
+			if (processJsonAnnotations) {
+				initPropertyWriters();
+			}
+
 			for (DefaultField field : fields) {
 				fieldImpls.add(field.build());
 			}
 
 			return new ResourceInformation(typeParser, resourceClass, resourceType, superResourceType,
 					fieldImpls);
+		}
+
+		public void processJsonAnnotations(boolean processJsonAnnotations) {
+			this.processJsonAnnotations = processJsonAnnotations;
+		}
+
+		private void initPropertyWriters() {
+			SerializerProvider serializerProvider = objectMapper.getSerializerProviderInstance();
+			BeanSerializer beanSerializer;
+			try {
+				beanSerializer =
+						(BeanSerializer) serializerProvider.findTypedValueSerializer(ResourceMapper.Task.class, true, null);
+			}
+			catch (JsonMappingException e) {
+				throw new IllegalStateException(e);
+			}
+			Iterator<PropertyWriter> properties = beanSerializer.properties();
+
+			Map<String, DefaultField> fieldMap = new HashMap<>();
+			for (DefaultField field : fields) {
+				fieldMap.put(field.jsonName, field);
+			}
+
+			while (properties.hasNext()) {
+				PropertyWriter propertyWriter = properties.next();
+				String name = propertyWriter.getName();
+
+				DefaultField field = fieldMap.get(name);
+				if (field != null) {
+					field.propertyWriter = propertyWriter;
+				}
+			}
 		}
 	}
 
@@ -170,6 +219,8 @@ public class DefaultInformationBuilder implements InformationBuilder {
 
 		private ResourceFieldAccess access = new ResourceFieldAccess(true, true, true, true, true);
 
+		private PropertyWriter propertyWriter;
+
 		public ResourceField build() {
 
 			if (oppositeResourceType == null && fieldType == ResourceFieldType.RELATIONSHIP) {
@@ -184,7 +235,7 @@ public class DefaultInformationBuilder implements InformationBuilder {
 			ResourceFieldImpl impl = new ResourceFieldImpl(jsonName, underlyingName, fieldType, type,
 					genericType, oppositeResourceType, oppositeName, serializeType,
 					lookupIncludeBehavior,
-					access);
+					access, propertyWriter);
 			if (accessor != null) {
 				impl.setAccessor(accessor);
 			}
@@ -259,8 +310,9 @@ public class DefaultInformationBuilder implements InformationBuilder {
 		}
 	}
 
-
-	public DefaultInformationBuilder(TypeParser typeParser) {
+	public DefaultInformationBuilder(TypeParser typeParser, ObjectMapper objectMapper) {
 		this.typeParser = typeParser;
+		this.objectMapper = objectMapper;
+		PreconditionUtil.assertNotNull("must not be null", objectMapper);
 	}
 }
