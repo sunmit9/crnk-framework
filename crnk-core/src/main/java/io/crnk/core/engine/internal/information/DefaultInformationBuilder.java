@@ -1,8 +1,15 @@
 package io.crnk.core.engine.internal.information;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationConfig;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.deser.BeanDeserializer;
+import com.fasterxml.jackson.databind.deser.DefaultDeserializationContext;
+import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
+import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.ser.BeanSerializer;
 import com.fasterxml.jackson.databind.ser.PropertyWriter;
@@ -151,7 +158,12 @@ public class DefaultInformationBuilder implements InformationBuilder {
 			List<ResourceField> fieldImpls = new ArrayList<>();
 
 			if (processJsonAnnotations) {
-				initPropertyWriters();
+				Map<String, DefaultField> fieldMap = new HashMap<>();
+				for (DefaultField field : fields) {
+					fieldMap.put(field.jsonName, field);
+				}
+				initPropertyWriters(fieldMap);
+				initPropertyReaders(fieldMap);
 			}
 
 			for (DefaultField field : fields) {
@@ -166,22 +178,19 @@ public class DefaultInformationBuilder implements InformationBuilder {
 			this.processJsonAnnotations = processJsonAnnotations;
 		}
 
-		private void initPropertyWriters() {
+		private void initPropertyWriters(
+				Map<String, DefaultField> fieldMap) {
 			SerializerProvider serializerProvider = objectMapper.getSerializerProviderInstance();
 			BeanSerializer beanSerializer;
 			try {
 				beanSerializer =
-						(BeanSerializer) serializerProvider.findTypedValueSerializer(ResourceMapper.Task.class, true, null);
+						(BeanSerializer) serializerProvider.findTypedValueSerializer(resourceClass, true, null);
 			}
 			catch (JsonMappingException e) {
 				throw new IllegalStateException(e);
 			}
 			Iterator<PropertyWriter> properties = beanSerializer.properties();
 
-			Map<String, DefaultField> fieldMap = new HashMap<>();
-			for (DefaultField field : fields) {
-				fieldMap.put(field.jsonName, field);
-			}
 
 			while (properties.hasNext()) {
 				PropertyWriter propertyWriter = properties.next();
@@ -193,6 +202,31 @@ public class DefaultInformationBuilder implements InformationBuilder {
 				}
 			}
 		}
+
+
+		private void initPropertyReaders(
+				Map<String, DefaultField> fieldMap) {
+			try {
+				DeserializationConfig deserializationConfig = objectMapper.getDeserializationConfig();
+				JavaType javaType = deserializationConfig.constructType(resourceClass);
+				DefaultDeserializationContext deserializationContext = (DefaultDeserializationContext) objectMapper
+						.getDeserializationContext();
+				deserializationContext = deserializationContext.createInstance(deserializationConfig, null, null);
+				BeanDeserializer deserializer = (BeanDeserializer) deserializationContext.findRootValueDeserializer(javaType);
+				Iterator<SettableBeanProperty> iterator = deserializer.properties();
+				while (iterator.hasNext()) {
+					SettableBeanProperty propertyReader = iterator.next();
+					DefaultField field = fieldMap.get(propertyReader.getName());
+					if (field != null) {
+						field.propertyReader = propertyReader;
+					}
+				}
+			}
+			catch (JsonMappingException e) {
+				throw new IllegalStateException(e);
+			}
+		}
+
 	}
 
 	public class DefaultField implements InformationBuilder.Field {
@@ -221,6 +255,8 @@ public class DefaultInformationBuilder implements InformationBuilder {
 
 		private PropertyWriter propertyWriter;
 
+		private SettableBeanProperty propertyReader;
+
 		public ResourceField build() {
 
 			if (oppositeResourceType == null && fieldType == ResourceFieldType.RELATIONSHIP) {
@@ -235,7 +271,7 @@ public class DefaultInformationBuilder implements InformationBuilder {
 			ResourceFieldImpl impl = new ResourceFieldImpl(jsonName, underlyingName, fieldType, type,
 					genericType, oppositeResourceType, oppositeName, serializeType,
 					lookupIncludeBehavior,
-					access, propertyWriter);
+					access, propertyReader, propertyWriter);
 			if (accessor != null) {
 				impl.setAccessor(accessor);
 			}

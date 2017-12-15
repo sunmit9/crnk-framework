@@ -1,5 +1,6 @@
 package io.crnk.core.engine.internal.information.resource;
 
+import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.ser.PropertyWriter;
 import io.crnk.core.engine.document.Resource;
@@ -38,6 +39,8 @@ public class ResourceFieldImpl implements ResourceField {
 
 	private final PropertyWriter propertyWriter;
 
+	private final SettableBeanProperty propertyReader;
+
 	private ResourceInformation parentResourceInformation;
 
 	private ResourceFieldAccessor accessor;
@@ -48,13 +51,14 @@ public class ResourceFieldImpl implements ResourceField {
 			Type genericType, String oppositeResourceType) {
 		this(jsonName, underlyingName, resourceFieldType, type, genericType,
 				oppositeResourceType, null, SerializeType.LAZY, LookupIncludeBehavior.NONE,
-				new ResourceFieldAccess(true, true, true, true, true), null);
+				new ResourceFieldAccess(true, true, true, true, true), null, null);
 	}
 
 	public ResourceFieldImpl(String jsonName, String underlyingName, ResourceFieldType resourceFieldType, Class<?> type,
 			Type genericType, String oppositeResourceType, String oppositeName, SerializeType serializeType,
 			LookupIncludeBehavior lookupIncludeBehavior,
-			ResourceFieldAccess access, PropertyWriter propertyWriter) {
+			ResourceFieldAccess access,
+			SettableBeanProperty propertyReader, PropertyWriter propertyWriter) {
 		this.jsonName = jsonName;
 		this.underlyingName = underlyingName;
 		this.resourceFieldType = resourceFieldType;
@@ -66,6 +70,7 @@ public class ResourceFieldImpl implements ResourceField {
 		this.oppositeResourceType = oppositeResourceType;
 		this.access = access;
 		this.propertyWriter = propertyWriter;
+		this.propertyReader = propertyReader;
 	}
 
 	public ResourceFieldType getResourceFieldType() {
@@ -191,7 +196,10 @@ public class ResourceFieldImpl implements ResourceField {
 		return access;
 	}
 
-	@Override
+	public SettableBeanProperty getPropertyReader() {
+		return propertyReader;
+	}
+
 	public PropertyWriter getPropertyWriter() {
 		return propertyWriter;
 	}

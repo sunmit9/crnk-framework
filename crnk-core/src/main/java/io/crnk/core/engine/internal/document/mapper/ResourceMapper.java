@@ -30,6 +30,7 @@ import io.crnk.core.engine.filter.ResourceFilterDirectory;
 import io.crnk.core.engine.http.HttpMethod;
 import io.crnk.core.engine.information.resource.ResourceField;
 import io.crnk.core.engine.information.resource.ResourceInformation;
+import io.crnk.core.engine.internal.information.resource.ResourceFieldImpl;
 import io.crnk.core.engine.internal.utils.SerializerUtil;
 import io.crnk.core.engine.query.QueryAdapter;
 import io.crnk.core.resource.links.LinksInformation;
@@ -139,6 +140,16 @@ public class ResourceMapper {
 		ObjectMapper mapper = new ObjectMapper();
 
 
+		DeserializationConfig deserializationConfig = mapper.getDeserializationConfig();
+		JavaType javaType = deserializationConfig.constructType(Task.class);
+		TypeDeserializer typeDeserializer = deserializationConfig.findTypeDeserializer(javaType);
+
+		DefaultDeserializationContext deserializationContext = (DefaultDeserializationContext) mapper
+				.getDeserializationContext();
+		deserializationContext = deserializationContext.createInstance(deserializationConfig, null, null);
+		BeanDeserializer deserializer = (BeanDeserializer) deserializationContext.findRootValueDeserializer(javaType);
+
+
 		Task task = new Task();
 		task.name = "hello";
 
@@ -149,31 +160,26 @@ public class ResourceMapper {
 
 		SerializerProvider serializerProvider = mapper.getSerializerProviderInstance();
 
-		DeserializationConfig deserializationConfig = mapper.getDeserializationConfig();
-		JavaType javaType = deserializationConfig.constructType(Task.class);
 
-		TypeDeserializer typeDeserializer = deserializationConfig.findTypeDeserializer(javaType);
 		System.out.println(typeDeserializer);
 
 		JsonParser parser = mapper.treeAsTokens(jsonNode);
 
-		DefaultDeserializationContext deserializationContext = (DefaultDeserializationContext) mapper.getDeserializationContext();
 		DefaultDeserializationContext context = deserializationContext.createInstance(deserializationConfig, parser, null);
-		BeanDeserializer deserializer = (BeanDeserializer) context.findRootValueDeserializer(javaType);
 
-		System.out.println( parser.nextToken());
-		System.out.println( parser.nextToken());
-		System.out.println( parser.nextToken());
+
+		System.out.println(parser.nextToken());
+		System.out.println(parser.nextToken());
+		System.out.println(parser.nextToken());
 
 		//Object deserialize = deserializer.deserialize(parser, context);
 
 		Iterator<SettableBeanProperty> iterator = deserializer.properties();
-		while(iterator.hasNext()){
+		while (iterator.hasNext()) {
 			SettableBeanProperty beanProp = iterator.next();
 			Object deserialize = beanProp.deserialize(parser, context);
 			System.out.println(deserialize);
 		}
-
 
 
 		System.out.println(deserializer);
@@ -210,7 +216,7 @@ public class ResourceMapper {
 	}
 
 	protected void setAttribute(Resource resource, ResourceField field, Object entity) {
-		PropertyWriter propertyWriter = field.getPropertyWriter();
+		PropertyWriter propertyWriter = ((ResourceFieldImpl) field).getPropertyWriter();
 		JsonNode valueNode;
 		if (propertyWriter != null) {
 			try {

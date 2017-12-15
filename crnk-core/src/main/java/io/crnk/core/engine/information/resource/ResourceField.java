@@ -69,5 +69,4 @@ public interface ResourceField {
 	 */
 	ResourceFieldAccess getAccess();
 
-	PropertyWriter getPropertyWriter();
 }
