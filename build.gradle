@@ -32,8 +32,7 @@ ext {
 SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss")
 if (ext.timestampedVersion) {
 	version = BUILD_VERSION_PREFIX + "." + format.format(new Date())
-}
-else {
+} else {
 	version = '0.0.0-SNAPSHOT'
 }
 group = GROUP_ID
@@ -65,7 +64,7 @@ gradle.beforeProject { Project project ->
 			sourceCompatibility = 1.8
 			targetCompatibility = 1.8
 
-			if(!bom) {
+			if (!bom) {
 				dependencies {
 					testCompile group: 'junit', name: 'junit', version: '4.12'
 					testCompile group: 'org.mockito', name: 'mockito-core', version: '1.10.19'
@@ -98,10 +97,7 @@ gradle.beforeProject { Project project ->
 		}
 
 		if (!docs && !examples && !testProject && !legacyBraveProject) {
-			// https://about.sonarqube.com/get-started/
-			apply plugin: "org.sonarqube"
 			apply plugin: "jacoco"
-
 			jacoco {
 				toolVersion = "0.7.6.201602180812"
 			}
@@ -120,19 +116,13 @@ gradle.beforeProject { Project project ->
 				rootProject.tasks.jacocoRootReport.sourceDirectories = files(sourceSets.main.allSource.srcDirs)
 				rootProject.tasks.jacocoRootReport.classDirectories = mainOutput
 
-			}
-			else {
+			} else {
 				rootProject.tasks.jacocoRootReport.sourceDirectories = sourceDirs.plus(files(sourceSets.main.allSource.srcDirs))
 				rootProject.tasks.jacocoRootReport.classDirectories = classDirs.plus(mainOutput)
 			}
 			rootProject.coveralls.sourceDirs.addAll(sourceSets.main.allSource.srcDirs.flatten())
 
 
-			sonarqube {
-				properties {
-					property 'sonar.coverage.exclusions', "**/legacy/**"
-				}
-			}
 
 			jacocoTestReport {
 				reports {
@@ -166,6 +156,8 @@ gradle.beforeProject { Project project ->
 					archives javadocJar
 					archives sourcesJar
 				}
+
+				ext.'signing.secretKeyRingFile' = "${rootProject.projectDir}/secring.gpg"
 
 				signing {
 					required {
@@ -230,8 +222,7 @@ gradle.beforeProject { Project project ->
 				}
 
 				tasks.publish.dependsOn(tasks.uploadArchives)
-			}
-			else {
+			} else {
 				task sourcesJar(type: Jar) {
 					from sourceSets.main.allSource
 					classifier = 'sources'
