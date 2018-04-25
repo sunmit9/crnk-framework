@@ -10,13 +10,6 @@ dependencyManagement {
 dependencies {
 
 	compile project(':crnk-servlet')
-	compileOnly project(':crnk-jpa')
-	compileOnly project(':crnk-validation')
-	compileOnly project(':crnk-home')
-	compileOnly project(':crnk-meta')
-	compileOnly project(':crnk-operations')
-	compileOnly project(':crnk-security')
-	compileOnly project(':crnk-ui')
 	compileOnly project(':crnk-client')
 
 	compileOnly 'org.springframework.boot:spring-boot-starter-web'
@@ -29,12 +22,7 @@ dependencies {
 	compileOnly 'org.springframework:spring-orm'
 
 	testCompile project(':crnk-jpa')
-	testCompile project(':crnk-jpa')
-	testCompile project(':crnk-validation')
 	testCompile project(':crnk-home')
-	testCompile project(':crnk-meta')
-	testCompile project(':crnk-operations')
-	testCompile project(':crnk-security')
 	testCompile project(':crnk-ui')
 	testCompile project(':crnk-client')
 	testCompile project(':crnk-test')

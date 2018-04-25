@@ -1,12 +1,12 @@
 # Auto Configure
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  io.crnk.spring.boot.autoconfigure.CrnkHomeAutoConfiguration,\
-  io.crnk.spring.boot.autoconfigure.CrnkJpaAutoConfiguration,\
-  io.crnk.spring.boot.autoconfigure.CrnkMetaAutoConfiguration,\
-  io.crnk.spring.boot.autoconfigure.CrnkOperationsAutoConfiguration,\
-  io.crnk.spring.boot.autoconfigure.CrnkUIAutoConfiguration,\
-  io.crnk.spring.boot.autoconfigure.CrnkSecurityAutoConfiguration,\
-  io.crnk.spring.boot.autoconfigure.CrnkSpringMvcAutoConfiguration,\
-  io.crnk.spring.boot.autoconfigure.CrnkSpringCloudSleuthAutoConfiguration,\
-  io.crnk.spring.boot.autoconfigure.CrnkErrorControllerAutoConfiguration,\
-  io.crnk.spring.boot.autoconfigure.CrnkValidationAutoConfiguration
+  io.crnk.spring.setup.boot.home.CrnkHomeAutoConfiguration,\
+  io.crnk.spring.setup.boot.core.CrnkCoreAutoConfiguration,\
+  io.crnk.spring.setup.boot.jpa.CrnkJpaAutoConfiguration,\
+  io.crnk.spring.setup.boot.meta.CrnkMetaAutoConfiguration,\
+  io.crnk.spring.setup.boot.operations.CrnkOperationsAutoConfiguration,\
+  io.crnk.spring.setup.boot.ui.CrnkUIAutoConfiguration,\
+  io.crnk.spring.setup.boot.security.CrnkSecurityAutoConfiguration,\
+  io.crnk.spring.setup.boot.mvc.CrnkSpringMvcAutoConfiguration,\
+  io.crnk.spring.setup.boot.mvc.CrnkErrorControllerAutoConfiguration,\
+  io.crnk.spring.setup.boot.validation.CrnkValidationAutoConfiguration

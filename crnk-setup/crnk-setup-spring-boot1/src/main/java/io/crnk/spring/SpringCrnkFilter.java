@@ -19,10 +19,12 @@ import io.crnk.core.engine.internal.utils.UrlUtils;
 import io.crnk.servlet.internal.ServletRequestContext;
 import io.crnk.spring.boot.CrnkSpringBootProperties;
 
+/**
+ * @deprecated use CrnkFilter
+ */
 @Priority(20)
+@Deprecated
 public class SpringCrnkFilter implements Filter {
-
-	private final CrnkSpringBootProperties properties;
 
 	private CrnkBoot boot;
 
@@ -32,7 +34,6 @@ public class SpringCrnkFilter implements Filter {
 
 	public SpringCrnkFilter(CrnkBoot boot, CrnkSpringBootProperties properties) {
 		this.boot = boot;
-		this.properties = properties;
 	}
 
 	@Override
@@ -65,7 +66,7 @@ public class SpringCrnkFilter implements Filter {
 	}
 
 	private boolean matchesPrefix(HttpServletRequest request) {
-		String pathPrefix = UrlUtils.removeLeadingSlash(properties.getPathPrefix());
+		String pathPrefix = UrlUtils.removeLeadingSlash(boot.getWebPathPrefix());
 		String path = UrlUtils.removeLeadingSlash(request.getRequestURI().substring(request.getContextPath().length()));
 		return pathPrefix == null || path.startsWith(pathPrefix);
 	}

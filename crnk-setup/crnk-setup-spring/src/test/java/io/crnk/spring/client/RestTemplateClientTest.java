@@ -44,7 +44,6 @@ public class RestTemplateClientTest {
 	@Value("${local.server.port}")
 	private int port;
 
-
 	private RestTemplateAdapterListener listener;
 
 	private CrnkClient client;
@@ -52,8 +51,6 @@ public class RestTemplateClientTest {
 	protected ResourceRepositoryV2<Task, Long> taskRepo;
 
 	protected ResourceRepositoryV2<Project, Long> projectRepo;
-
-	protected ResourceRepositoryV2<Schedule, Long> scheduleRepo;
 
 	protected RelationshipRepositoryV2<Task, Long, Project, Long> relRepo;
 
@@ -63,7 +60,7 @@ public class RestTemplateClientTest {
 
 	@Before
 	public void setupClient() {
-		client = new CrnkClient("http://127.0.0.1:" + port + "/api");
+		client = new CrnkClient("http://127.0.0.1:" + port);
 		client.findModules();
 
 		RestTemplateAdapter adapter = RestTemplateAdapter.newInstance();
@@ -74,7 +71,6 @@ public class RestTemplateClientTest {
 		adapter.getImplementation().setRequestFactory(new OkHttp3ClientHttpRequestFactory());
 		client.setHttpAdapter(adapter);
 
-		scheduleRepo = client.getRepositoryForType(Schedule.class);
 		taskRepo = client.getRepositoryForType(Task.class);
 		projectRepo = client.getRepositoryForType(Project.class);
 		relRepo = client.getRepositoryForType(Task.class, Project.class);
@@ -117,7 +113,7 @@ public class RestTemplateClientTest {
 	}
 
 	@Test
-	public void testFindEmpty() {
+	public void testFindEmpty() throws InterruptedException {
 		QuerySpec querySpec = new QuerySpec(Task.class);
 		querySpec.addFilter(new FilterSpec(Arrays.asList("name"), FilterOperator.EQ, "doesNotExist"));
 		List<Task> tasks = taskRepo.findAll(querySpec);

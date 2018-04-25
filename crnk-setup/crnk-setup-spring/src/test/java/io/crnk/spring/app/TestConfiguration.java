@@ -9,11 +9,11 @@ import io.crnk.core.queryspec.QuerySpecDeserializer;
 import io.crnk.core.queryspec.pagingspec.OffsetLimitPagingBehavior;
 import io.crnk.core.queryspec.pagingspec.OffsetLimitPagingSpec;
 import io.crnk.core.queryspec.pagingspec.PagingBehavior;
+import io.crnk.servlet.CrnkFilter;
 import io.crnk.servlet.internal.ServletModule;
-import io.crnk.spring.SpringCrnkFilter;
-import io.crnk.spring.boot.CrnkSpringBootProperties;
 import io.crnk.spring.internal.SpringServiceDiscovery;
 import io.crnk.test.mock.TestModule;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -21,10 +21,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
+@EnableAutoConfiguration
 public class TestConfiguration implements ApplicationContextAware {
 
 	private ApplicationContext applicationContext;
-
 
 	@Bean
 	@ConditionalOnMissingBean(ServiceDiscovery.class)
@@ -55,8 +55,8 @@ public class TestConfiguration implements ApplicationContextAware {
 	}
 
 	@Bean
-	public SpringCrnkFilter springBootSampleCrnkFilter(CrnkBoot boot) {
-		return new SpringCrnkFilter(boot, new CrnkSpringBootProperties());
+	public CrnkFilter springBootSampleCrnkFilter(CrnkBoot boot) {
+		return new CrnkFilter(boot);
 	}
 
 	@Bean

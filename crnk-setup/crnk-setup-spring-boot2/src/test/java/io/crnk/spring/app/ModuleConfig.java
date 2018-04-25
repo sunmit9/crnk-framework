@@ -11,9 +11,4 @@ public class ModuleConfig {
 	public TestModule testModule() {
 		return new TestModule();
 	}
-
-	@Bean
-	public TestSpanReporter spanReporter() {
-		return new TestSpanReporter();
-	}
 }

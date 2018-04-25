@@ -13,7 +13,7 @@ import io.crnk.core.queryspec.FilterSpec;
 import io.crnk.core.queryspec.QuerySpec;
 import io.crnk.core.repository.RelationshipRepositoryV2;
 import io.crnk.core.repository.ResourceRepositoryV2;
-import io.crnk.spring.app.BasicSpringBootApplication;
+import io.crnk.spring.app.BasicSpringBoot2Application;
 import io.crnk.test.mock.TestModule;
 import io.crnk.test.mock.models.Project;
 import io.crnk.test.mock.models.Schedule;
@@ -37,7 +37,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.RestTemplate;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = BasicSpringBootApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = BasicSpringBoot2Application.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @DirtiesContext
 public class RestTemplateClientTest {
 

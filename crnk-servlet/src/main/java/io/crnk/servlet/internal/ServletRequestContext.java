@@ -43,12 +43,12 @@ public class ServletRequestContext implements HttpRequestContextBase {
 	private String pathPrefix;
 
 	public ServletRequestContext(final ServletContext servletContext, final HttpServletRequest request,
-			final HttpServletResponse response, String pathPrefix) {
+								 final HttpServletResponse response, String pathPrefix) {
 		this(servletContext, request, response, pathPrefix, HttpHeaders.DEFAULT_CHARSET);
 	}
 
 	public ServletRequestContext(final ServletContext servletContext, final HttpServletRequest request,
-			final HttpServletResponse response, String pathPrefix, String defaultCharacterEncoding) {
+								 final HttpServletResponse response, String pathPrefix, String defaultCharacterEncoding) {
 		this.pathPrefix = pathPrefix;
 		this.servletContext = servletContext;
 		this.servletRequest = request;
@@ -79,8 +79,7 @@ public class ServletRequestContext implements HttpRequestContextBase {
 				characterEncoding = defaultCharacterEncoding;
 				request.setCharacterEncoding(characterEncoding);
 			}
-		}
-		catch (UnsupportedEncodingException e) {
+		} catch (UnsupportedEncodingException e) {
 			throw new IllegalStateException(e);
 		}
 
@@ -133,14 +132,14 @@ public class ServletRequestContext implements HttpRequestContextBase {
 
 	@Override
 	public String getBaseUrl() {
-		String requestUrl = servletRequest.getRequestURL().toString();
-		String servletPath = servletRequest.getServletPath();
+		String requestUrl = UrlUtils.removeTrailingSlash(servletRequest.getRequestURL().toString());
+		String servletPath = UrlUtils.removeTrailingSlash(servletRequest.getServletPath());
 
 		if (pathPrefix != null && servletPath.startsWith(pathPrefix)) {
 			// harden again invalid servlet paths (e.g. in case of filters)
 			servletPath = pathPrefix;
 		}
-		else if (servletPath.isEmpty()) {
+		if (servletPath.isEmpty()) {
 			return UrlUtils.removeTrailingSlash(requestUrl);
 		}
 
@@ -157,12 +156,10 @@ public class ServletRequestContext implements HttpRequestContextBase {
 				InputStream is = servletRequest.getInputStream();
 				if (is != null) {
 					requestBody = Nullable.of(io.crnk.core.engine.internal.utils.IOUtils.readFully(is));
-				}
-				else {
+				} else {
 					requestBody = Nullable.nullValue();
 				}
-			}
-			catch (IOException e) {
+			} catch (IOException e) {
 				throw new IllegalStateException(e); // FIXME
 			}
 		}
