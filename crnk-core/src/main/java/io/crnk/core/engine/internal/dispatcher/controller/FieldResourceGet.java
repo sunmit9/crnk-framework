@@ -35,14 +35,14 @@ public class FieldResourceGet extends ResourceIncludeField {
 			parameterProvider, Document requestBody) {
 		PathIds resourceIds = jsonPath.getIds();
 		String resourceName = jsonPath.getResourceType();
-		String elementName = jsonPath.getElementName();
+		String resourcePath = jsonPath.getElementName();
 
 		ResourceRegistry resourceRegistry = context.getResourceRegistry();
 		RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
 		logger.debug("using registry entry {}", registryEntry);
 		Serializable castedResourceId = getResourceId(resourceIds, registryEntry);
-		ResourceField relationshipField = registryEntry.getResourceInformation().findRelationshipFieldByName(elementName);
-		verifyFieldNotNull(relationshipField, elementName);
+		ResourceField relationshipField = registryEntry.getResourceInformation().findRelationshipFieldByName(resourcePath);
+		verifyFieldNotNull(relationshipField, resourcePath);
 
 		// TODO remove Class usage and replace by resourceId
 		Class<?> baseRelationshipFieldClass = relationshipField.getType();

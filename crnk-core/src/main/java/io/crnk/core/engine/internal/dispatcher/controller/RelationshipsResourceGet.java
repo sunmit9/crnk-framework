@@ -34,9 +34,9 @@ public class RelationshipsResourceGet extends ResourceIncludeField {
 		RegistryEntry registryEntry = context.getResourceRegistry().getEntry(resourceName);
 
 		Serializable castedResourceId = getResourceId(resourceIds, registryEntry);
-		String elementName = jsonPath.getElementName();
-		ResourceField relationshipField = registryEntry.getResourceInformation().findRelationshipFieldByName(elementName);
-		verifyFieldNotNull(relationshipField, elementName);
+		String resourcePath = jsonPath.getElementName();
+		ResourceField relationshipField = registryEntry.getResourceInformation().findRelationshipFieldByName(resourcePath);
+		verifyFieldNotNull(relationshipField, resourcePath);
 
 		DocumentMappingConfig documentMapperConfig = DocumentMappingConfig.create().setParameterProvider(parameterProvider);
 		DocumentMapper documentMapper = context.getDocumentMapper();
