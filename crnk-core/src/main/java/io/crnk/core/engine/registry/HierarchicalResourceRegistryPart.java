@@ -79,7 +79,7 @@ public class HierarchicalResourceRegistryPart extends ResourceRegistryPartBase {
 		if (part == null) {
 			return null;
 		}
-		return part.getEntry(resourcePath);
+		return part.getEntryByPath(resourcePath);
 	}
 
 	private ResourceRegistryPart getPart(String resourceType) {
