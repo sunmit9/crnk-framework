@@ -99,7 +99,7 @@ class ClientResourceUpsert extends ResourceUpsert {
 		List<Object> objects = new ArrayList<>();
 		for (Resource resource : resources) {
 
-			RegistryEntry registryEntry = getRegistryEntry(resource.getType());
+			RegistryEntry registryEntry = getRegistryEntryByPath(resource.getType());
 			ResourceInformation resourceInformation = registryEntry.getResourceInformation();
 
 			Object object = newResource(resourceInformation, resource);
