@@ -29,14 +29,14 @@ public class RelationshipsResourceGet extends ResourceIncludeField {
 
 	@Override
 	public Result<Response> handleAsync(JsonPath jsonPath, QueryAdapter queryAdapter, RepositoryMethodParameterProvider parameterProvider, Document requestBody) {
-		String resourceName = jsonPath.getResourceType();
+		String resourcePath = jsonPath.getResourceType();
 		PathIds resourceIds = jsonPath.getIds();
-		RegistryEntry registryEntry = context.getResourceRegistry().getEntry(resourceName);
+		RegistryEntry registryEntry = context.getResourceRegistry().getEntryByPath(resourcePath);
 
 		Serializable castedResourceId = getResourceId(resourceIds, registryEntry);
-		String resourcePath = jsonPath.getElementName();
-		ResourceField relationshipField = registryEntry.getResourceInformation().findRelationshipFieldByName(resourcePath);
-		verifyFieldNotNull(relationshipField, resourcePath);
+		String resourceSubPath = jsonPath.getElementName();
+		ResourceField relationshipField = registryEntry.getResourceInformation().findRelationshipFieldByName(resourceSubPath);
+		verifyFieldNotNull(relationshipField, resourceSubPath);
 
 		DocumentMappingConfig documentMapperConfig = DocumentMappingConfig.create().setParameterProvider(parameterProvider);
 		DocumentMapper documentMapper = context.getDocumentMapper();
