@@ -8,7 +8,7 @@ import io.crnk.test.mock.models.types.ProjectData;
 import java.util.ArrayList;
 import java.util.List;
 
-@JsonApiResource(type = "project", resourcePath = "projects")
+@JsonApiResource(type = "projects")
 public class Project {
 
 	@JsonApiId

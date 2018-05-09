@@ -23,11 +23,11 @@ public abstract class ResourceIncludeField extends BaseController {
 		}
 	}
 
-	protected RegistryEntry getRegistryEntry(String resource) {
+	protected RegistryEntry getRegistryEntry(String resourcePath) {
 		ResourceRegistry resourceRegistry = context.getResourceRegistry();
-		RegistryEntry registryEntry = resourceRegistry.getEntry(resource);
+		RegistryEntry registryEntry = resourceRegistry.getEntryByPath(resourcePath);
 		if (registryEntry == null) {
-			throw new RepositoryNotFoundException(resource);
+			throw new RepositoryNotFoundException(resourcePath);
 		}
 		return registryEntry;
 	}

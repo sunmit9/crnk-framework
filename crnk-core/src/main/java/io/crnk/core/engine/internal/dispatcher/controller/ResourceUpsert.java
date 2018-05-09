@@ -76,8 +76,8 @@ public abstract class ResourceUpsert extends ResourceIncludeField {
 	}
 
 	protected RegistryEntry getRegistryEntry(JsonPath jsonPath) {
-		String resourceType = jsonPath.getResourceType();
-		return getRegistryEntry(resourceType);
+		String resourcePath = jsonPath.getResourceType();
+		return getRegistryEntry(resourcePath);
 	}
 
 	protected Object newResource(ResourceInformation resourceInformation, Resource dataBody) {

@@ -14,7 +14,7 @@ import io.crnk.core.resource.annotations.JsonApiToOne;
 import io.crnk.core.resource.annotations.LookupIncludeBehavior;
 import io.crnk.core.resource.annotations.SerializeType;
 
-@JsonApiResource(type = "schedules")
+@JsonApiResource(type = "schedule", resourcePath = "schedules")
 public class Schedule {
 
 	@JsonApiId
