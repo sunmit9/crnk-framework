@@ -1,7 +1,6 @@
 package io.crnk.spring.setup.boot.core;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import io.crnk.core.boot.CrnkBoot;
 import io.crnk.core.boot.CrnkProperties;
 import io.crnk.core.engine.properties.PropertiesProvider;
@@ -9,15 +8,18 @@ import io.crnk.core.engine.registry.ResourceRegistry;
 import io.crnk.core.engine.url.ConstantServiceUrlProvider;
 import io.crnk.core.module.ModuleRegistry;
 import io.crnk.core.module.discovery.ServiceDiscovery;
-import io.crnk.core.queryspec.DefaultQuerySpecDeserializer;
-import io.crnk.core.queryspec.QuerySpecDeserializer;
+import io.crnk.core.queryspec.mapper.DefaultQuerySpecUrlMapper;
+import io.crnk.core.queryspec.mapper.QuerySpecUrlMapper;
 import io.crnk.core.queryspec.pagingspec.OffsetLimitPagingBehavior;
 import io.crnk.core.queryspec.pagingspec.OffsetLimitPagingSpec;
 import io.crnk.core.queryspec.pagingspec.PagingBehavior;
+import io.crnk.meta.MetaModule;
+import io.crnk.meta.MetaModuleConfig;
+import io.crnk.meta.provider.resource.ResourceMetaProvider;
 import io.crnk.servlet.CrnkFilter;
 import io.crnk.servlet.internal.ServletModule;
 import io.crnk.spring.internal.SpringServiceDiscovery;
-
+import io.crnk.spring.setup.boot.meta.MetaModuleConfigurer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -26,6 +28,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.List;
 
 /**
  * Current crnk configuration with JSON API compliance, QuerySpec and module support.
@@ -42,6 +46,9 @@ public class CrnkCoreAutoConfiguration implements ApplicationContextAware {
 	private CrnkCoreProperties properties;
 
 	private ObjectMapper objectMapper;
+
+	@Autowired(required = false)
+	private List<CrnkBootConfigurer> configurers;
 
 	@Autowired
 	public CrnkCoreAutoConfiguration(CrnkCoreProperties properties, ObjectMapper objectMapper) {
@@ -93,14 +100,21 @@ public class CrnkCoreAutoConfiguration implements ApplicationContextAware {
 			}
 		});
 		boot.addModule(new ServletModule(boot.getModuleRegistry().getHttpRequestContextProvider()));
+
+		if (configurers != null) {
+			for (CrnkBootConfigurer configurer : configurers) {
+				configurer.configure(boot);
+			}
+		}
+
 		boot.boot();
 		return boot;
 	}
 
 	@Bean
-	@ConditionalOnMissingBean(QuerySpecDeserializer.class)
-	public QuerySpecDeserializer querySpecDeserializer() {
-		return new DefaultQuerySpecDeserializer();
+	@ConditionalOnMissingBean(QuerySpecUrlMapper.class)
+	public QuerySpecUrlMapper querySpecUrlMapper() {
+		return new DefaultQuerySpecUrlMapper();
 	}
 
 	@Bean

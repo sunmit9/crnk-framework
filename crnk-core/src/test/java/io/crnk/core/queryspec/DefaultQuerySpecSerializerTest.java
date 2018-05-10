@@ -9,6 +9,7 @@ import io.crnk.core.exception.RepositoryNotFoundException;
 import io.crnk.core.mock.MockConstants;
 import io.crnk.core.mock.models.Project;
 import io.crnk.core.mock.models.Task;
+import io.crnk.core.queryspec.pagingspec.OffsetLimitPagingBehavior;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,6 +18,7 @@ import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
 
+@Deprecated
 public class DefaultQuerySpecSerializerTest {
 
 	private JsonApiUrlBuilder urlBuilder;
@@ -26,21 +28,24 @@ public class DefaultQuerySpecSerializerTest {
 	@Before
 	public void setup() {
 		CoreTestContainer container = new CoreTestContainer();
-		container.setPackage(MockConstants.TEST_MODELS_PACKAGE + ",io.crnk.core.queryspec.pagingspec");
+		container.setPackage(MockConstants.TEST_MODELS_PACKAGE);
+		container.getBoot().getModuleRegistry().addPagingBehavior(new OffsetLimitPagingBehavior());
 		container.boot();
 
 		resourceRegistry = container.getResourceRegistry();
-		urlBuilder = new JsonApiUrlBuilder(resourceRegistry, container.getQueryContext());
+		urlBuilder = new JsonApiUrlBuilder(container.getModuleRegistry(), container.getQueryContext());
+		urlBuilder.setQuerySpecSerializer(new DefaultQuerySpecSerializer(resourceRegistry));
 	}
 
 	@Test
 	public void testHttpsSchema() {
 		CoreTestContainer container = new CoreTestContainer();
 		container.getBoot().setServiceUrlProvider(new ConstantServiceUrlProvider("https://127.0.0.1"));
-		container.setPackage(MockConstants.TEST_MODELS_PACKAGE + ",io.crnk.core.queryspec.pagingspec");
+		container.setPackage(MockConstants.TEST_MODELS_PACKAGE);
+		container.getBoot().getModuleRegistry().addPagingBehavior(new OffsetLimitPagingBehavior());
 		container.boot();
 
-		urlBuilder = new JsonApiUrlBuilder(container.getResourceRegistry(), container.getQueryContext());
+		urlBuilder = new JsonApiUrlBuilder(container.getModuleRegistry(), container.getQueryContext());
 		check("https://127.0.0.1/tasks", null, new QuerySpec(Task.class));
 	}
 
@@ -48,10 +53,11 @@ public class DefaultQuerySpecSerializerTest {
 	public void testPort() {
 		CoreTestContainer container = new CoreTestContainer();
 		container.getBoot().setServiceUrlProvider(new ConstantServiceUrlProvider("https://127.0.0.1:1234"));
-		container.setPackage(MockConstants.TEST_MODELS_PACKAGE + ",io.crnk.core.queryspec.pagingspec");
+		container.setPackage(MockConstants.TEST_MODELS_PACKAGE);
+		container.getBoot().getModuleRegistry().addPagingBehavior(new OffsetLimitPagingBehavior());
 		container.boot();
 
-		urlBuilder = new JsonApiUrlBuilder(container.getResourceRegistry(), container.getQueryContext());
+		urlBuilder = new JsonApiUrlBuilder(container.getModuleRegistry(), container.getQueryContext());
 		check("https://127.0.0.1:1234/tasks", null, new QuerySpec(Task.class));
 	}
 

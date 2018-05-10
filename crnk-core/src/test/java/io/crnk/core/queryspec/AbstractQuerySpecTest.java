@@ -1,6 +1,7 @@
 package io.crnk.core.queryspec;
 
 import io.crnk.core.CoreTestContainer;
+import io.crnk.core.CoreTestModule;
 import io.crnk.core.engine.information.InformationBuilder;
 import io.crnk.core.engine.information.contributor.ResourceFieldContributor;
 import io.crnk.core.engine.information.contributor.ResourceFieldContributorContext;
@@ -13,9 +14,8 @@ import io.crnk.core.engine.registry.ResourceRegistry;
 import io.crnk.core.mock.models.Task;
 import io.crnk.core.module.ModuleRegistry;
 import io.crnk.core.module.SimpleModule;
-import io.crnk.core.queryspec.pagingspec.OffsetLimitPagingBehavior;
 import io.crnk.core.queryspec.pagingspec.OffsetLimitPagingSpec;
-import io.crnk.core.queryspec.pagingspec.CustomOffsetLimitPagingBehavior;
+import io.crnk.core.queryspec.pagingspec.PagingBehavior;
 import io.crnk.legacy.internal.DefaultQuerySpecConverter;
 import io.crnk.legacy.queryParams.DefaultQueryParamsParser;
 import io.crnk.legacy.queryParams.QueryParamsBuilder;
@@ -76,10 +76,8 @@ public abstract class AbstractQuerySpecTest {
 		};
 		SimpleModule module = new SimpleModule("test");
 		module.addResourceFieldContributor(contributor);
-		module.addPagingBehavior(new OffsetLimitPagingBehavior());
-		module.addPagingBehavior(new CustomOffsetLimitPagingBehavior());
 
-		container.setPackage(getResourceSearchPackage());
+		setup(container);
 		container.addModule(module);
 		container.boot();
 
@@ -88,8 +86,8 @@ public abstract class AbstractQuerySpecTest {
 		resourceRegistry = container.getResourceRegistry();
 	}
 
-	public String getResourceSearchPackage() {
-		return getClass().getPackage().getName();
+	protected void setup(CoreTestContainer container) {
+		container.addModule(new CoreTestModule());
 	}
 
 	protected QuerySpec querySpec(Long offset, Long limit) {

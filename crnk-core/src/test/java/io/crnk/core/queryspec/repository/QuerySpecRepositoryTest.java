@@ -1,5 +1,6 @@
 package io.crnk.core.queryspec.repository;
 
+import io.crnk.core.CoreTestModule;
 import io.crnk.core.engine.information.resource.ResourceField;
 import io.crnk.core.engine.internal.repository.RelationshipRepositoryAdapter;
 import io.crnk.core.engine.internal.repository.ResourceRepositoryAdapter;
@@ -12,6 +13,8 @@ import io.crnk.core.mock.repository.ScheduleRepository;
 import io.crnk.core.mock.repository.ScheduleRepositoryImpl;
 import io.crnk.core.queryspec.AbstractQuerySpecTest;
 import io.crnk.core.queryspec.QuerySpec;
+import io.crnk.core.queryspec.pagingspec.CustomOffsetLimitPagingBehavior;
+import io.crnk.core.queryspec.pagingspec.PagingBehavior;
 import io.crnk.core.repository.response.JsonApiResponse;
 import io.crnk.legacy.internal.QueryParamsAdapter;
 import io.crnk.legacy.queryParams.QueryParams;
@@ -35,11 +38,10 @@ public class QuerySpecRepositoryTest extends AbstractQuerySpecTest {
 
 	private ResourceRepositoryAdapter scheduleAdapter;
 
+
 	@Before
 	public void setup() {
-		TaskQuerySpecRepository.clear();
-		ProjectQuerySpecRepository.clear();
-		ScheduleRepositoryImpl.clear();
+		CoreTestModule.clear();
 
 		super.setup();
 		RegistryEntry taskEntry = resourceRegistry.getEntry(Task.class);

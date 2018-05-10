@@ -11,7 +11,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import io.crnk.core.queryspec.mapper.QuerySpecUrlContext;
+import io.crnk.core.queryspec.mapper.QuerySpecUrlMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.crnk.core.engine.dispatcher.RequestDispatcher;
 import io.crnk.core.engine.error.ExceptionMapper;
 import io.crnk.core.engine.error.JsonApiExceptionMapper;
@@ -42,9 +48,12 @@ import io.crnk.core.engine.internal.utils.PreconditionUtil;
 import io.crnk.core.engine.parser.TypeParser;
 import io.crnk.core.engine.properties.NullPropertiesProvider;
 import io.crnk.core.engine.properties.PropertiesProvider;
-import io.crnk.core.engine.registry.*;
-import io.crnk.core.engine.result.ResultFactory;
+import io.crnk.core.engine.registry.RegistryEntry;
+import io.crnk.core.engine.registry.RegistryEntryBuilder;
+import io.crnk.core.engine.registry.ResourceRegistry;
+import io.crnk.core.engine.registry.ResourceRegistryPart;
 import io.crnk.core.engine.result.ImmediateResultFactory;
+import io.crnk.core.engine.result.ResultFactory;
 import io.crnk.core.engine.security.SecurityProvider;
 import io.crnk.core.module.Module.ModuleContext;
 import io.crnk.core.module.discovery.MultiResourceLookup;
@@ -58,8 +67,6 @@ import io.crnk.core.repository.decorate.ResourceRepositoryDecorator;
 import io.crnk.core.utils.Optional;
 import io.crnk.core.utils.Prioritizable;
 import io.crnk.legacy.registry.DefaultResourceInformationProviderContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Container for setting up and holding {@link Module} instances;
@@ -69,6 +76,9 @@ public class ModuleRegistry {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ModuleRegistry.class);
 
 	private ResultFactory resultFactory;
+
+	private Map<String, String> serverInfo;
+
 
 	enum InitializedState {
 		NOT_INITIALIZED,
@@ -81,6 +91,8 @@ public class ModuleRegistry {
 	private ObjectMapper objectMapper;
 
 	private ResourceRegistry resourceRegistry;
+
+	private QuerySpecUrlMapper urlMapper;
 
 	private List<Module> modules = new ArrayList<>();
 
@@ -120,6 +132,14 @@ public class ModuleRegistry {
 		return prioritze(aggregatedModule.getResourceModificationFilters());
 	}
 
+	public void setServerInfo(Map<String, String> serverInfo) {
+		this.serverInfo = serverInfo;
+	}
+
+	public Map<String, String> getServerInfo() {
+		return serverInfo;
+	}
+
 	public ResultFactory getResultFactory() {
 		if (resultFactory == null) {
 			throw new IllegalStateException("resultFactory not yet available");
@@ -155,7 +175,7 @@ public class ModuleRegistry {
 	 * @param pagingBehavior the paging behavior
 	 */
 	public void addPagingBehavior(PagingBehavior pagingBehavior) {
-		this.aggregatedModule.addPagingBehavior(pagingBehavior);
+		aggregatedModule.addPagingBehavior(pagingBehavior);
 	}
 
 	public void addAllPagingBehaviors(List<PagingBehavior> pagingBehaviors) {
@@ -895,5 +915,28 @@ public class ModuleRegistry {
 			}
 		});
 		return results;
+	}
+
+	public QuerySpecUrlMapper getUrlMapper() {
+		return urlMapper;
+	}
+
+	public void setUrlMapper(QuerySpecUrlMapper urlMapper) {
+		this.urlMapper = urlMapper;
+
+		if (urlMapper != null) {
+			this.urlMapper.init(new QuerySpecUrlContext() {
+
+				@Override
+				public ResourceRegistry getResourceRegistry() {
+					return ModuleRegistry.this.getResourceRegistry();
+				}
+
+				@Override
+				public TypeParser getTypeParser() {
+					return ModuleRegistry.this.getTypeParser();
+				}
+			});
+		}
 	}
 }

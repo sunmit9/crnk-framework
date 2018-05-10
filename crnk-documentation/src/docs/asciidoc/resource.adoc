@@ -253,7 +253,7 @@ See http://jsonapi.org/format/#document-links for more information about linking
 		@JsonApiLinksInformation
 		private ProjectLinks links;
 
-		public static class ProjectLinks implements MetaInformation {
+		public static class ProjectLinks implements LinksInformation {
 
 			private String value;
 
@@ -307,6 +307,9 @@ Crnk comes with (partial) support for Jackson annotations. Currently supported a
 
 | `@JsonProperty.access`
 | Specifies whether an object can be read and/or written.
+
+| `@JsonAnyGetter` and `@JsonAnySetter`
+| To map dynamic data structures to JSON.
 
 |===
 
