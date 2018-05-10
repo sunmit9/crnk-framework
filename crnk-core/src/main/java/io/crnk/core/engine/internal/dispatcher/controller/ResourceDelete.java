@@ -33,7 +33,7 @@ public class ResourceDelete extends BaseController {
 										RepositoryMethodParameterProvider parameterProvider, Document requestBody) {
 		String resourcePath = jsonPath.getElementName();
 		PathIds resourceIds = jsonPath.getIds();
-		RegistryEntry registryEntry = context.getResourceRegistry().getEntry(resourcePath);
+		RegistryEntry registryEntry = context.getResourceRegistry().getEntryByPath(resourcePath);
 		if (registryEntry == null) {
 			//TODO: Add JsonPath toString and provide to exception?
 			throw new ResourceNotFoundException(resourcePath);
