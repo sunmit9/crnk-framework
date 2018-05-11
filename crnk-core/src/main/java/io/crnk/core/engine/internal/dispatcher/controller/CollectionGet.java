@@ -34,7 +34,7 @@ public class CollectionGet extends ResourceIncludeField {
 	public Result<Response> handleAsync(JsonPath jsonPath, QueryAdapter queryAdapter, RepositoryMethodParameterProvider
 			parameterProvider, Document requestBody) {
 		String resourcePath = jsonPath.getElementName();
-		RegistryEntry registryEntry = context.getResourceRegistry().getEntryByPath(resourcePath);
+		RegistryEntry registryEntry = getRegistryEntryByPath(resourcePath);
 		logger.debug("using registry entry {}", registryEntry);
 		if (registryEntry == null) {
 			throw new ResourceNotFoundException(resourcePath);

@@ -5,9 +5,11 @@ import io.crnk.core.engine.document.Document;
 import io.crnk.core.engine.http.HttpMethod;
 import io.crnk.core.engine.internal.dispatcher.path.JsonPath;
 import io.crnk.core.engine.internal.utils.PreconditionUtil;
+import io.crnk.core.engine.registry.ResourceRegistry;
 import io.crnk.core.engine.result.Result;
 import io.crnk.core.engine.query.QueryAdapter;
 import io.crnk.core.engine.registry.RegistryEntry;
+import io.crnk.core.exception.RepositoryNotFoundException;
 import io.crnk.core.exception.RequestBodyException;
 import io.crnk.legacy.internal.RepositoryMethodParameterProvider;
 import org.slf4j.Logger;
@@ -61,5 +63,23 @@ public abstract class BaseController implements Controller {
 					"%s, request type: %s", methodType, endpointRegistryEntry.getResourceInformation().getResourceType());
 			throw new RequestBodyException(methodType, endpointRegistryEntry.getResourceInformation().getResourceType(), message);
 		}
+	}
+
+	protected RegistryEntry getRegistryEntry(String resource) {
+		ResourceRegistry resourceRegistry = context.getResourceRegistry();
+		RegistryEntry registryEntry = resourceRegistry.getEntry(resource);
+		if (registryEntry == null) {
+			throw new RepositoryNotFoundException(resource);
+		}
+		return registryEntry;
+	}
+
+	protected RegistryEntry getRegistryEntryByPath(String resourcePath) {
+		ResourceRegistry resourceRegistry = context.getResourceRegistry();
+		RegistryEntry registryEntry = resourceRegistry.getEntryByPath(resourcePath);
+		if (registryEntry == null) {
+			throw new RepositoryNotFoundException(resourcePath);
+		}
+		return registryEntry;
 	}
 }

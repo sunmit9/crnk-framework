@@ -29,9 +29,9 @@ public class RelationshipsResourceGet extends ResourceIncludeField {
 
 	@Override
 	public Result<Response> handleAsync(JsonPath jsonPath, QueryAdapter queryAdapter, RepositoryMethodParameterProvider parameterProvider, Document requestBody) {
-		String resourcePath = jsonPath.getResourceType();
+		String resourcePath = jsonPath.getResourcePath();
 		PathIds resourceIds = jsonPath.getIds();
-		RegistryEntry registryEntry = context.getResourceRegistry().getEntryByPath(resourcePath);
+		RegistryEntry registryEntry = getRegistryEntryByPath(resourcePath);
 
 		Serializable castedResourceId = getResourceId(resourceIds, registryEntry);
 		String resourceSubPath = jsonPath.getElementName();
