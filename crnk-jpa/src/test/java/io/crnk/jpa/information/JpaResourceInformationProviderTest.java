@@ -1,5 +1,12 @@
 package io.crnk.jpa.information;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.crnk.core.engine.information.resource.ResourceField;
 import io.crnk.core.engine.information.resource.ResourceFieldType;
@@ -10,7 +17,17 @@ import io.crnk.core.engine.properties.NullPropertiesProvider;
 import io.crnk.core.resource.annotations.SerializeType;
 import io.crnk.jpa.internal.JpaResourceInformationProvider;
 import io.crnk.jpa.meta.JpaMetaProvider;
-import io.crnk.jpa.model.*;
+import io.crnk.jpa.model.AnnotationMappedSuperclassEntity;
+import io.crnk.jpa.model.AnnotationTestEntity;
+import io.crnk.jpa.model.JpaTransientTestEntity;
+import io.crnk.jpa.model.ManyToManyOppositeEntity;
+import io.crnk.jpa.model.ManyToManyTestEntity;
+import io.crnk.jpa.model.OneToOneTestEntity;
+import io.crnk.jpa.model.RelatedEntity;
+import io.crnk.jpa.model.RenamedTestEntity;
+import io.crnk.jpa.model.TestEmbeddable;
+import io.crnk.jpa.model.TestEntity;
+import io.crnk.jpa.model.VersionedEntity;
 import io.crnk.jpa.util.ResourceFieldComparator;
 import io.crnk.legacy.registry.DefaultResourceInformationProviderContext;
 import io.crnk.meta.MetaLookup;
@@ -19,13 +36,6 @@ import io.crnk.meta.model.MetaDataObject;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 public class JpaResourceInformationProviderTest {
 
@@ -55,7 +65,7 @@ public class JpaResourceInformationProviderTest {
 
 		List<ResourceField> attrFields = new ArrayList<>(info.getAttributeFields());
 		Collections.sort(attrFields, ResourceFieldComparator.INSTANCE);
-		assertEquals(5, attrFields.size());
+		assertEquals(6, attrFields.size());
 		ResourceField embField = attrFields.get(1);
 		assertEquals(TestEntity.ATTR_embValue, embField.getJsonName());
 		assertEquals(TestEntity.ATTR_embValue, embField.getUnderlyingName());

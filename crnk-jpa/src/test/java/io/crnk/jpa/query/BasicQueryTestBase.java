@@ -1,21 +1,29 @@
 package io.crnk.jpa.query;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.UUID;
+import javax.persistence.criteria.JoinType;
+
 import io.crnk.core.queryspec.Direction;
 import io.crnk.core.queryspec.FilterOperator;
 import io.crnk.core.queryspec.FilterSpec;
 import io.crnk.jpa.model.CollectionAttributesTestEntity;
 import io.crnk.jpa.model.RelatedEntity;
 import io.crnk.jpa.model.TestEntity;
+import io.crnk.jpa.model.TestEnum;
 import io.crnk.jpa.model.UuidTestEntity;
 import org.hibernate.Hibernate;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.persistence.criteria.JoinType;
-import java.util.*;
-
-import static org.junit.Assert.*;
 
 @Transactional
 public abstract class BasicQueryTestBase extends AbstractJpaTest {
@@ -71,6 +79,22 @@ public abstract class BasicQueryTestBase extends AbstractJpaTest {
 		assertEquals((Long) 0L, builder().addFilter(TestEntity.ATTR_stringValue, FilterOperator.EQ, "test0").buildExecutor().getUniqueResult(false).getId());
 		assertEquals((Long) 1L, builder().addFilter(TestEntity.ATTR_stringValue, FilterOperator.EQ, "test1").buildExecutor().getUniqueResult(false).getId());
 		assertEquals((Long) 2L, builder().addFilter(TestEntity.ATTR_stringValue, FilterOperator.EQ, "test2").buildExecutor().getUniqueResult(false).getId());
+	}
+
+	@Test
+	public void testEnumEqualsFilter() {
+		assertEquals((Long) 0L, builder().addFilter(TestEntity.ATTR_enumValue, FilterOperator.EQ, TestEnum.FIRST).buildExecutor().getUniqueResult(false).getId());
+		assertEquals(numTestEntities - 1, builder().addFilter(TestEntity.ATTR_enumValue, FilterOperator.EQ, TestEnum.OTHER).buildExecutor().getTotalRowCount());
+		assertEquals(0, builder().addFilter(TestEntity.ATTR_enumValue, FilterOperator.EQ, TestEnum.NON_EXISTING).buildExecutor().getTotalRowCount());
+	}
+
+	@Test
+	public void testSortEnum() {
+		List<TestEntity> list = builder().addSortBy(Arrays.asList(TestEntity.ATTR_enumValue), Direction.ASC).buildExecutor().getResultList();
+		Assert.assertEquals(0L, list.get(0).getId().longValue());
+
+		list = builder().addSortBy(Arrays.asList(TestEntity.ATTR_enumValue), Direction.DESC).buildExecutor().getResultList();
+		Assert.assertEquals(0L, list.get(numTestEntities - 1).getId().longValue());
 	}
 
 	@Test
