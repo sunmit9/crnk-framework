@@ -1,4 +1,3 @@
-import { Subject } from 'rxjs/Subject';
 import { Observable } from 'rxjs/Observable';
 import * as _ from 'lodash';
 import 'rxjs/add/operator/zip';
@@ -10,15 +9,16 @@ import {
 	Direction,
 	FilteringParam,
 	ManyQueryResult,
+	NGRX_JSON_API_DEFAULT_ZONE,
 	NgrxJsonApiService,
+	NgrxJsonApiZoneService,
 	Query,
-	Resource,
-	SortingParam,
-	NgrxJsonApiZoneService, NGRX_JSON_API_DEFAULT_ZONE, getNgrxJsonApiZone, selectNgrxJsonApiZone, QueryParams
+	QueryParams,
+	selectNgrxJsonApiZone,
+	SortingParam
 } from 'ngrx-json-api';
 import { CrnkBindingUtils, toQueryPath } from './crnk.binding.utils';
 // TODO get rid of this? or support multiple ones, only dependency to primeng here...
-import { LazyLoadEvent } from 'primeng/primeng';
 import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs/Subscription';
 
@@ -262,7 +262,10 @@ export class DataTablePrimengAdapter implements DataTableImplementationAdapter {
 		this.context = context;
 	}
 
-	public onLazyLoad(event: LazyLoadEvent) {
+	/**
+	 * @param event of type LazyLoadEvent from primeng (not explicitly typed to avoid dependency)
+	 */
+	public onLazyLoad(event) {
 		const offset = event.first;
 		const limit = event.rows;
 		const filters: Array<FilteringParam> = [];
