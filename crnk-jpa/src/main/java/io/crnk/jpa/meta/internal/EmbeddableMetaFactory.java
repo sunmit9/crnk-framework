@@ -5,6 +5,7 @@ import javax.persistence.Embeddable;
 
 import io.crnk.core.engine.information.bean.BeanAttributeInformation;
 import io.crnk.core.engine.internal.utils.ClassUtils;
+import io.crnk.jpa.annotations.BlobBasedEmbeddable;
 import io.crnk.jpa.meta.MetaEmbeddable;
 import io.crnk.jpa.meta.MetaEmbeddableAttribute;
 import io.crnk.jpa.query.AnyTypeObject;
@@ -18,7 +19,8 @@ public class EmbeddableMetaFactory extends AbstractJpaDataObjectFactory<MetaEmbe
 
 	@Override
 	public boolean accept(Type type) {
-		return ClassUtils.getRawType(type).getAnnotation(Embeddable.class) != null;
+		Class<?> rawType = ClassUtils.getRawType(type);
+		return rawType.getAnnotation(Embeddable.class) != null || rawType.getAnnotation(BlobBasedEmbeddable.class) != null;
 	}
 
 	@Override
