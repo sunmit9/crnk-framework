@@ -2,8 +2,48 @@ anchor:generation[]
 
 # Generation
 
-Crnk allows the generation of Typescript stubs for type-safe, client-side web development. Contributions for other
-languages like iOS would be very welcomed.
+Crnk allows the generation of:
+
+- Typescript stubs for type-safe, client-side web development.
+- Java-based path types to safely construct `QuerySpec` objects.
+
+Contributions for other languages like iOS would be very welcomed.
+
+anchor:generation_java[]
+
+## Java
+
+WARNING: This annotation processor is still (highly) experimental. Feedback welcomed.
+
+`crnk-gen-java` hosts an annotation processor that generates a type-safe API for the construction of `QuerySpec`
+objects. The annotation processor can be setup like any other processor as supported by all Java build tools.
+In Gradle it looks like:
+
+[source]
+----
+dependencies{
+  annotationProcessor 'io.crnk:crnk-gen-java'
+  ...
+}
+----
+
+This leads to generated classes like:
+
+[source,Java]
+----
+include::../../../../crnk-integration-examples/spring-boot-example/build/classes/java/main/io/crnk/example/springboot/domain/model/ProjectType.java[]
+----
+
+One can add a static import for `project` and make use of it:
+
+[source,Java]
+----
+QuerySpec querySpec = new QuerySpec(Project.class)
+querySpec.addFilterSpec(project.name.eq("John"));
+----
+
+In the future further help is expected, like a type-safe QuerySpec.
+
 
 ## Typescript
 
@@ -22,7 +62,7 @@ like:
 
 [source]
 ----
-include::../../../../crnk-gen-typescript/src/test/resources/expected_schedule_without_expressions.ts[]
+include::../../../../crnk-gen/crnk-gen-typescript/src/test/resources/expected_schedule_without_expressions.ts[]
 ----
 
 For an example have a look at the Crnk example application, see https://github.com/crnk-project/crnk-example[crnk-project/crnk-example].
